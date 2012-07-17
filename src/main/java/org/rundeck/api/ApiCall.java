@@ -331,7 +331,24 @@ class ApiCall {
      * @param httpClient pre-instantiated
      * @throws RundeckApiLoginException if the login failed
      */
-    private void login(HttpClient httpClient) throws RundeckApiLoginException {
+    private void login(HttpClient httpClient) throws RundeckAPiLoginException
+    {
+        String getContent = null;
+
+        try {
+            HttpGet get = new HttpGet(client.getUrl());
+            HttpResponse getResponse = httpClient.execute(get);
+            getContent = EntityUtils.tostring(getResponse.getEntity(), HTTP.UTF_8);
+        } catch (Exception e) {
+            throw new RundeckApiLoginException("Failed to perform login", e);
+        }
+
+        if (StringUtils.contains(getContent, "j_security_check")) {
+            old_login(client);
+        }
+    }
+
+    private void old_login(HttpClient httpClient) throws RundeckApiLoginException {
         String location = client.getUrl() + "/j_security_check";
 
         while (true) {
