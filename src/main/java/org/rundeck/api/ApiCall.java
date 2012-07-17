@@ -185,7 +185,7 @@ class ApiCall {
         ByteArrayInputStream response = execute(new HttpGet(client.getUrl() + RundeckClient.API_ENDPOINT + apiPath));
 
         // try to load the document, to throw an exception in case of error
-        ParserHelper.loadDocument(response);
+        // ParserHelper.loadDocument(response); this does not work for YAML
         response.reset();
 
         return response;
@@ -331,20 +331,20 @@ class ApiCall {
      * @param httpClient pre-instantiated
      * @throws RundeckApiLoginException if the login failed
      */
-    private void login(HttpClient httpClient) throws RundeckAPiLoginException
+    private void login(HttpClient httpClient) throws RundeckApiLoginException
     {
         String getContent = null;
 
         try {
             HttpGet get = new HttpGet(client.getUrl());
             HttpResponse getResponse = httpClient.execute(get);
-            getContent = EntityUtils.tostring(getResponse.getEntity(), HTTP.UTF_8);
+            getContent = EntityUtils.toString(getResponse.getEntity(), HTTP.UTF_8);
         } catch (Exception e) {
             throw new RundeckApiLoginException("Failed to perform login", e);
         }
 
         if (StringUtils.contains(getContent, "j_security_check")) {
-            old_login(client);
+            old_login(httpClient);
         }
     }
 
